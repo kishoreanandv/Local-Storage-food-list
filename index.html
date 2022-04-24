@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Local Storage</title>
+    <link href="style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="container">
+      <h2>Food</h2>
+      <!-- for Empty space -->
+      <p></p>
+      <ul class="listItems"></ul>
+      <form class="list-form">
+        <input type="text" name="item" placeholder="Enter Item" required />
+        <input type="submit" value="Add Item"
+      </form>
+    </div>
+    <script>
+      const listItems = document.querySelector(".listItems");
+      const listForm = document.querySelector(".list-form");
+      const itemArray = JSON.parse(localStorage.getItem("items")) || [];
+
+      function addItem(e) {
+        // to prevent page from automtic reload
+        e.preventDefault();
+        // gets user typed value from input
+        const text = this.querySelector("[name=item]").value;
+        const itemObject = {
+          text, //ES6-> equivalent to text=text,
+          check: false,
+        };
+        itemArray.push(itemObject);
+        makeList(itemArray, listItems);
+        //local Storage stores only in string
+        localStorage.setItem("items", JSON.stringify(itemArray));
+        this.reset();
+
+        // console.log(itemObject);
+        // console.table(itemArray);
+      }
+      // using food=[] insteaad of passing itemArray directly for future dynamic chnages
+
+      function makeList(food = [], listItem) {
+        listItem.innerHTML = food
+          .map((foods, i) => {
+            return `
+          <li>
+            <input type="checkbox" data-index=${i} id="item${i}" ${
+              foods.check ? "checked" : ""
+            }/>
+            <label for="item${i}">${foods.text}</label>
+              </li>`;
+          })
+          .join("");
+      }
+
+      function foodCheck(e) {
+        if (!e.target.matches("input")) return;
+        const eventTarget = e.target;
+        // console.log(e.target);
+        const index = eventTarget.dataset.index;
+        itemArray[index].check = !itemArray[index].check;
+        localStorage.setItem("items", JSON.stringify(itemArray));
+        makeList(itemArray, listItems);
+      }
+
+      listForm.addEventListener("submit", addItem);
+      listItems.addEventListener("click", foodCheck);
+      makeList(itemArray, listItems);
+    </script>
+  </body>
+</html>
